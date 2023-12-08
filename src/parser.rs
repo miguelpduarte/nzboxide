@@ -36,12 +36,30 @@ struct File {
 }
 
 #[derive(Deserialize, PartialEq, Debug)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "lowercase", from = "String")]
+// TODO: Allow "other" and just ignore them? Found example from nzbscout with: name, x-rating-host, x-rating-id
 enum MetaType {
     Title,
     Tag,
     Category,
     Password,
+    // #[serde(other)]
+    Unknown(String),
+}
+
+// TODO: Look at e.g. serde-enum-str to have a more flexible option for this, or just scrap the idea altogether and use Unknown with a unit type like base serde supports
+// https://stackoverflow.com/questions/57469527/how-can-i-support-an-unknown-or-other-value-for-a-serde-enum
+impl From<String> for MetaType {
+    fn from(value: String) -> Self {
+        use MetaType::*;
+        return match value.as_str() {
+            "title" => Title,
+            "tag" => Tag,
+            "category" => Category,
+            "password" => Password,
+            _ => Unknown(value),
+        };
+    }
 }
 
 #[derive(Deserialize, PartialEq, Debug)]
@@ -60,7 +78,7 @@ struct Head {
 #[derive(Deserialize, PartialEq, Debug)]
 pub struct NZBData {
     head: Option<Head>,
-    file: File,
+    file: Vec<File>,
 }
 
 #[cfg(test)]
@@ -94,7 +112,7 @@ mod tests {
                     },
                 ],
             }),
-            file: File {
+            file: vec![File {
                 poster: "Joe Bloggs <bloggs@nowhere.example>".to_string(),
                 date: 1071674882,
                 subject: "Here's your file!  abc-mr2a.r01 (1/2)".to_string(),
@@ -118,7 +136,7 @@ mod tests {
                         },
                     ],
                 },
-            },
+            }],
         };
 
         assert_eq!(parsed, expected);
