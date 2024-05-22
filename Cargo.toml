@@ -3,8 +3,15 @@ name = "nzboxide"
 version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0-only"
+repository = "https://github.com/miguelpduarte/nzboxide"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lints.rust]
+
+unsafe_code = "forbid"
+
+[lints.clippy]
+
+# pedantic = "warn"
 
 [dependencies]
 clap = { version = "4.3.22", features = ["derive"] }
