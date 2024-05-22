@@ -1,0 +1,16 @@
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+name: Clippy check
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  clippy_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup component add clippy
+      - run: cargo clippy --all-targets
+      - run: cargo test --verbose
